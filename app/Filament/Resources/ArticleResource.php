@@ -133,11 +133,12 @@ class ArticleResource extends Resource
                     ->visibility('public')
                     ->directory('')
                     ->required(),
-                    
+
                 Forms\Components\Repeater::make('metas') // PostMeta inline
                     ->relationship()
+                    ->default([])
                     ->schema([
-                        TextInput::make('key')->required(),
+                        TextInput::make('key'),
                         TextInput::make('value'),
                     ])
                     ->label('Meta Information')
@@ -162,9 +163,7 @@ class ArticleResource extends Resource
                 Tables\Columns\ImageColumn::make('cover')->circular(),
                 Tables\Columns\TextColumn::make('title')->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('slug')->sortable(),
-                Tables\Columns\TextColumn::make('categories.title')->sortable(),
-                Tables\Columns\TextColumn::make('tag.title')->searchable()->sortable(),
-                                            
+
                 /*
                 Tables\Columns\ImageColumn::make('first_image_url')
                     ->label('Gambar Konten')
@@ -172,12 +171,7 @@ class ArticleResource extends Resource
                     ->width(80)
                     ->circular(),
                 */
-
-                Tables\Columns\TextColumn::make('content')->searchable()
-                    ->sortable()
-                    ->formatStateUsing(fn($state) => ucfirst($state))
-                    ->limit(16),
-
+                
                 Tables\Columns\TextColumn::make('status')
                     ->sortable()
                     ->searchable()
