@@ -14,6 +14,7 @@ class AdminUserSeeder extends Seeder
             ['email' => 'administrator@gmail.com'], // avoid duplicates
             [
                 'name' => 'Administrator',
+                'role' => 'admin',
                 'password' => Hash::make('admin123'), // secure password
                 'email_verified_at' => now(),
             ]

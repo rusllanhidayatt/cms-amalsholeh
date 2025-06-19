@@ -8,6 +8,16 @@ use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 class Kernel extends ConsoleKernel
 {
     /**
+     * Artisan commands for the application.
+     */
+    protected $commands = [
+        \App\Console\Commands\DropMigrationsTable::class,
+        \App\Console\Commands\DiscardMigrationsTablespace::class,
+        \App\Console\Commands\StorageResetLink::class,
+        \App\Console\Commands\StorageCleanPublic::class,
+    ];
+
+    /**
      * Define the application's command schedule.
      */
     protected function schedule(Schedule $schedule): void
@@ -24,10 +34,4 @@ class Kernel extends ConsoleKernel
 
         require base_path('routes/console.php');
     }
-
-    protected $commands = [
-        \App\Console\Commands\DropMigrationsTable::class,
-        \App\Console\Commands\DiscardMigrationsTablespace::class,
-    ];
-
 }

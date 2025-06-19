@@ -57,20 +57,19 @@ class CategoryResource extends Resource
 
                 Forms\Components\TextInput::make('slug')
                     ->readonly()
+                    ->required()
                     ->extraAttributes([
                         'class' => 'bg-gray-100 text-gray-700'
                     ])
                     ->placeholder('Slug akan otomatis dibuat dari judul yang sesuai'),
                 
                 Forms\Components\Textarea::make('description')
-                    ->rows(10)
-                    ->required(),
+                    ->rows(10),
 
                 Forms\Components\FileUpload::make('icon')
                     ->image()
-                    ->directory('posts')
                     ->visibility('public')
-                    ->required(),
+                    ->directory(''),
             ]);
     }
 

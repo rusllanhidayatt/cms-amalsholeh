@@ -17,9 +17,9 @@ class StatisticResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-chart-bar';
     
-    protected static ?string $navigationLabel = 'Statistik';
-    protected static ?string $pluralModelLabel = 'Statistik';
-    protected static ?string $navigationGroup = 'Pelacakan';
+    protected static ?string $navigationLabel = 'Statistic';
+    protected static ?string $pluralModelLabel = 'Statistic';
+    protected static ?string $navigationGroup = 'Tracking';
 
     public static function form(Form $form): Form
     {

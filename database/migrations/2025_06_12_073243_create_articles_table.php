@@ -14,6 +14,7 @@ return new class extends Migration
             $table->string('slug')->unique();
             $table->text('content')->nullable();
             $table->string('cover')->nullable();
+            $table->string('status')->nullable();
             $table->unsignedBigInteger('category_id');
             $table->foreign('category_id')
                   ->references('id')->on('categories')

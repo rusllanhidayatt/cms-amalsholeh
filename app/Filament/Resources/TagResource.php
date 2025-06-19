@@ -57,20 +57,14 @@ class TagResource extends Resource
 
                 Forms\Components\TextInput::make('slug')
                     ->readonly()
+                    ->required()
                     ->extraAttributes([
                         'class' => 'bg-gray-100 text-gray-700'
                     ])
                     ->placeholder('Slug akan otomatis dibuat dari judul yang sesuai'),
 
                 Forms\Components\Textarea::make('description')
-                    ->rows(10)
-                    ->required(),
-
-                Forms\Components\FileUpload::make('icon')
-                    ->image()
-                    ->directory('posts')
-                    ->visibility('public')
-                    ->required(),
+                    ->rows(10),
             ]);
     }
 
@@ -84,7 +78,6 @@ class TagResource extends Resource
                                             ->sortable()
                                             ->formatStateUsing(fn($state) => ucfirst($state))
                                             ->limit(16),
-                Tables\Columns\ImageColumn::make('icon')->circular(),
                 Tables\Columns\TextColumn::make('created_at')->dateTime(),
             ])
             ->actions([

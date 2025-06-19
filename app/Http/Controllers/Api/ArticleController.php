@@ -16,8 +16,8 @@ class ArticleController extends Controller
 
     public function showArticles() 
     {
-        
-        $articles = Article::with(['category', 'metas'])->get();
+        $perPage = request()->get('per_page', 9);
+        $articles = Article::where('status', 'published')->latest()->paginate($perPage);
 
         if ($articles->isEmpty()) {
             return response()->json([
@@ -26,20 +26,25 @@ class ArticleController extends Controller
         }
 
         return response()->json([
-            'data' => $articles->map(function ($item) {
+            'data' => $articles->getCollection()->map(function ($item) {
                 return [
                     'id'            => $item->id,
                     'title'         => $item->title,
                     'slug'          => $item->slug,
                     'content'       => $item->content,
                     'cover'         => $item->cover,
+                    'status'        => $item->status,
                     'created_at'    => $item->created_at,
                     'updated_at'    => $item->updated_at,
-                    'category_id'   => $item->category_id,
-                    'category'      => $item->category ? $item->category->title : null,
+                    'tag'           => $item->tag,
+                    'category'      => json_decode(json_encode([
+                        'category_id' => $item->category_id,
+                        'category_title'    => $item->category ? $item->category->title : null,
+                        'category_slug'        => $item->category ? $item->category->slug : null
+                    ])),
                     'postmeta'      => $item->metas->map(function ($postmeta) use ($item) {
                         return [
-                            'id'            => $postmeta->id,
+                            'post_meta_id'  => $postmeta->id,
                             'article_id'    => $postmeta->article_id,
                             'article_name'  => $item->title,
                             'article_slug'  => $item->slug,
@@ -51,6 +56,20 @@ class ArticleController extends Controller
                     }),
                 ];
             }),
+            'pagination' => [
+                'total'         => $articles->total(),
+                'count'         => $articles->count(),
+                'per_page'      => $articles->perPage(),
+                'current_page'  => $articles->currentPage(),
+                'last_page'     => $articles->lastPage(),
+                'links' => [
+                    'path'   => url('/api/v1/articles'),
+                    'first'  => $articles->url(1),
+                    'last'   => $articles->url($articles->lastPage()),
+                    'prev'   => $articles->previousPageUrl(),
+                    'next'   => $articles->nextPageUrl(),
+                ],
+            ],
         ]);
     }
 
@@ -73,6 +92,7 @@ class ArticleController extends Controller
                 'slug'          => $item->slug,
                 'content'       => $item->content,
                 'cover'         => $item->cover,
+                'status'        => $item->status,
                 'created_at'    => $item->created_at,
                 'updated_at'    => $item->updated_at,
                 'category_id'   => $item->category_id,
@@ -182,7 +202,7 @@ class ArticleController extends Controller
 
     public function showTags() 
     {
-        $data = Tag::select('id', 'title', 'slug', 'description', 'icon', 'created_at', 'updated_at')
+        $data = Tag::select('id', 'title', 'slug', 'description', 'created_at', 'updated_at')
             ->get();
 
         return response()->json([
@@ -192,7 +212,6 @@ class ArticleController extends Controller
                     'title'         => $item->title,
                     'slug'          => $item->slug,
                     'description'   => $item->description,
-                    'icon'          => $item->icon,
                     'created_at'    => $item->created_at,
                     'updated_at'    => $item->updated_at,
                 ];

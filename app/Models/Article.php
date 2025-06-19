@@ -14,10 +14,16 @@ class Article extends Model
         'slug',
         'content',
         'cover',
+        'status',
         'category_id',
         'tag_id',
         'meta',
     ];
+
+    public function tags()
+    {
+        return $this->belongsToMany(\App\Models\Tag::class);
+    }
 
     public function article()
     {
@@ -29,14 +35,9 @@ class Article extends Model
         return $this->belongsTo(Category::class);
     }
     
-    public function tags()
-    {
-        return $this->belongsToMany(Tag::class);
-    }
-    
     public function tag()
     {
-        return $this->belongsToMany(tag::class);
+        return $this->belongsToMany(Tag::class);
     }
     
     public function metas()
@@ -59,5 +60,12 @@ class Article extends Model
         return $this->belongsTo(Category::class, 'category_id');
     }
 
-    
+    public function getFirstImageUrlAttribute(): ?string
+    {
+        if (preg_match('/<img[^>]+src="([^">]+)"/', $this->content, $matches)) {
+            return $matches[1];
+        }
+
+        return null;
+    }
 }

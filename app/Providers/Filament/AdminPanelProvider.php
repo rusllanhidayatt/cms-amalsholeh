@@ -17,8 +17,12 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Illuminate\Support\Facades\Auth;
 use App\Filament\Widgets\StatisticChart;
-
+use Filament\Navigation\NavigationGroup;
+use Filament\Navigation\MenuItem;
+use Filament\Navigation\UserMenuItem;
+use App\Filament\Resources\SettingsResource\Pages\EditSettings;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -32,12 +36,22 @@ class AdminPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Amber,
             ])
+            ->navigationGroups([
+                NavigationGroup::make('User')
+                    ->collapsible(fn () => auth()->check() && auth()->user()->role === 'admin')
+            ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
                 Pages\Dashboard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
+            ->userMenuItems([
+                UserMenuItem::make()
+                    ->label('Settings')
+                    ->url(fn () => EditSettings::getUrl(['record' => auth()->id()]))
+                    ->icon('heroicon-o-cog-6-tooth'),
+            ])
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,

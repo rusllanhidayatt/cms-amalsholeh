@@ -5,6 +5,8 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\CommentResource\Pages;
 use App\Filament\Resources\CommentResource\RelationManagers;
 use App\Models\Comment;
+use App\Models\Article;
+use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -18,6 +20,9 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Support\Str;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
+use Illuminate\Support\Facades\DB;
 
 class CommentResource extends Resource
 {
@@ -32,15 +37,11 @@ class CommentResource extends Resource
     public static function form(Form $form): Form
     {
         return $form->schema([
-            Select::make('artikel_id')
-                ->relationship('artikel', 'title')
+            Select::make('article_id')
+                ->relationship('article', 'title')
                 ->disabled(),
 
-            Select::make('parent_id')
-                ->relationship('parent', 'content')
-                ->label('Reply to')
-                ->disabled(),
-
+            TextInput::make('parent_id')->disabled(),
             TextInput::make('name')->disabled(),
             TextInput::make('email')->disabled(),
             Textarea::make('content')->disabled()->rows(4),
@@ -50,9 +51,9 @@ class CommentResource extends Resource
     public static function table(Table $table): Table
     {
         return $table->columns([
-            TextColumn::make('artikel.title')->label('Artikel'),
-            TextColumn::make('name')->searchable(),
-            TextColumn::make('content')->limit(50),
+            TextColumn::make('article.title')->label('Article')->searchable(),
+            TextColumn::make('name')->searchable()->sortable()->label('Name'),
+            TextColumn::make('content')->searchable()->sortable()->limit(50),
         ]);
     }
 

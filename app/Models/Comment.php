@@ -21,6 +21,11 @@ class Comment extends Model
         return $this->belongsTo(Article::class, 'article_id');
     }
 
+    public function articles()
+    {
+        return $this->belongsToMany(Article::class);
+    }
+
     public function parent()
     {
         return $this->belongsTo(Comment::class, 'parent_id');

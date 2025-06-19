@@ -13,12 +13,11 @@ class Tag extends Model
         'title',
         'slug',
         'description',
-        'icon',
     ];
-    
+
     public function articles()
     {
-        return $this->belongsToMany(Article::class);
+        return $this->belongsToMany(\App\Models\Article::class);
     }
     
     public function article()

@@ -7,24 +7,24 @@ use App\Filament\Resources\ArticleResource\RelationManagers;
 use App\Models\Article;
 use App\Models\Category;
 use App\Models\Tag;
-use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
-use Filament\Resources\Select;
-use Filament\Tables;
-use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Models\Page;
-use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Forms\Components\TagsInput;
-use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\TextInput;
-use Filament\Tables\Columns\ImageColumn;
+use Filament\Forms;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
+use Filament\Forms\Form;
+use Filament\Forms\Components\TagsInput;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\{FileUpload, RichEditor, Grid};
+use Filament\Resources\Resource;
+use Filament\Resources\Select;
+use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Tables;
+use Filament\Tables\Table;
+use Filament\Tables\Columns\ImageColumn;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class ArticleResource extends Resource
 {
@@ -63,6 +63,7 @@ class ArticleResource extends Resource
 
                 Forms\Components\TextInput::make('slug')
                     ->readonly()
+                    ->required()
                     ->extraAttributes([
                         'class' => 'bg-gray-100 text-gray-700'
                     ])
@@ -77,16 +78,60 @@ class ArticleResource extends Resource
                     ->relationship('tags', 'title') // relasi Artikel ↔ Tag
                     ->multiple()
                     ->preload()
-                    ->searchable(),
+                    ->searchable()
+                    ->createOptionForm([
+                        Forms\Components\TextInput::make('title')
+                            ->required()
+                            ->live(onBlur: true)
+                            ->afterStateUpdated(function (Get $get, Set $set, ?string $old, ?string $state) {
+                                if (($get('slug') ?? '') !== Str::slug($old)) {
+                                    return;
+                                }
 
-                Forms\Components\Textarea::make('content')
-                    ->rows(10)
-                    ->required(),
+                                $baseSlug = Str::slug($state);
+                                $slug = $baseSlug;
+                                $counter = 1;
+
+                                // Check uniqueness and increment until slug is unique
+                                while (DB::table('tags')->where('slug', $slug)->exists()) {
+                                    $slug = $baseSlug . '-' . $counter++;
+                                }
+
+                                $set('slug', $slug);
+                            }),
+
+                        Forms\Components\TextInput::make('slug')
+                            ->readonly()
+                            ->required()
+                            ->extraAttributes([
+                                'class' => 'bg-gray-100 text-gray-700'
+                            ])
+                            ->placeholder('Slug akan otomatis dibuat dari judul yang sesuai'),
+
+                        ]),
+
+                FileUpload::make('upload')
+                    ->hidden()
+                    ->visibility('public')
+                    ->directory('')
+                    ->image()
+                    ->afterStateUpdated(function ($state, Set $set, callable $get) {
+                        if ($state) {
+                            $url = "/storage/{$state}";
+                            $current = $get('content');
+                            $set('content', $current . "\n\n<img src=\"{$url}\" alt=\"\" />\n\n");
+                        }
+                    }),
+
+                RichEditor::make('content')
+                    ->label('Content')
+                    ->required()
+                    ->columnSpanFull(),
 
                 Forms\Components\FileUpload::make('cover')
                     ->image()
-                    ->directory('posts')
                     ->visibility('public')
+                    ->directory('')
                     ->required(),
                     
                 Forms\Components\Repeater::make('metas') // PostMeta inline
@@ -97,6 +142,15 @@ class ArticleResource extends Resource
                     ])
                     ->label('Meta Information')
                     ->collapsible(),
+
+                Forms\Components\Select::make('status')
+                    ->label('Status')
+                    ->options([
+                        'draft' => 'Draft',
+                        'published' => 'Published',
+                    ])
+                    ->default('draft')
+                    ->required(),
 
             ]);
     }
@@ -110,10 +164,29 @@ class ArticleResource extends Resource
                 Tables\Columns\TextColumn::make('slug')->sortable(),
                 Tables\Columns\TextColumn::make('categories.title')->sortable(),
                 Tables\Columns\TextColumn::make('tag.title')->searchable()->sortable(),
-                Tables\Columns\TextColumn::make('content')
-                                            ->sortable()
-                                            ->formatStateUsing(fn($state) => ucfirst($state))
-                                            ->limit(16),
+                                            
+                /*
+                Tables\Columns\ImageColumn::make('first_image_url')
+                    ->label('Gambar Konten')
+                    ->height(80)
+                    ->width(80)
+                    ->circular(),
+                */
+
+                Tables\Columns\TextColumn::make('content')->searchable()
+                    ->sortable()
+                    ->formatStateUsing(fn($state) => ucfirst($state))
+                    ->limit(16),
+
+                Tables\Columns\TextColumn::make('status')
+                    ->sortable()
+                    ->searchable()
+                    ->badge()
+                    ->colors([
+                        'danger' => 'draft',
+                        'success' => 'published',
+                    ]),
+
                 Tables\Columns\TextColumn::make('created_at')->date(),
             ])
             ->actions([
