@@ -22,9 +22,9 @@ return new class extends Migration
             $table->timestamps();
         });
     }
-
+    
     public function down(): void
     {
-        Schema::dropIfExists('articles');
+        Schema::dropIfExists('article_tag');
     }
 };
