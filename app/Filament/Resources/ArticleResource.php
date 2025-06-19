@@ -132,7 +132,11 @@ class ArticleResource extends Resource
                     ->image()
                     ->visibility('public')
                     ->directory('')
-                    ->required(),
+                    ->required()
+                    ->getUploadedFileNameForStorageUsing(function ($file) {
+                        $name = 'AMSOL-' . time() . '.' . $file->getClientOriginalExtension();
+                        return $name;
+                    }),
 
                 Forms\Components\Repeater::make('metas') // PostMeta inline
                     ->relationship()

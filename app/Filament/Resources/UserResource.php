@@ -64,6 +64,15 @@ class UserResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('name')->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('email')->searchable()->sortable(),
+                Tables\Columns\TextColumn::make('role')
+                        ->searchable()
+                        ->sortable()
+                    ->badge()
+                    ->colors([
+                        'success'   => 'admin',
+                        'primary'   => 'user',
+                        'info'      => 'viewer',
+                    ]),
                 Tables\Columns\TextColumn::make('created_at')->dateTime(),
             ])
             ->actions([

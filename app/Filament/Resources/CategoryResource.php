@@ -69,7 +69,11 @@ class CategoryResource extends Resource
                 Forms\Components\FileUpload::make('icon')
                     ->image()
                     ->visibility('public')
-                    ->directory(''),
+                    ->directory('')
+                    ->getUploadedFileNameForStorageUsing(function ($file) {
+                        $name = 'AMSOL-' . time() . '.' . $file->getClientOriginalExtension();
+                        return $name;
+                    }),
             ]);
     }
 

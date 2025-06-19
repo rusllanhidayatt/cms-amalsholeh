@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class Article extends Model
 {
@@ -23,11 +24,6 @@ class Article extends Model
     public function tags()
     {
         return $this->belongsToMany(\App\Models\Tag::class);
-    }
-
-    public function article()
-    {
-        return $this->belongsToMany(Tag::class);
     }
 
     public function category()
@@ -67,5 +63,12 @@ class Article extends Model
         }
 
         return null;
+    }
+    
+    public function getCoverUrlAttribute(): ?string
+    {
+        return $this->cover
+            ? Storage::url($this->cover)
+            : null;
     }
 }

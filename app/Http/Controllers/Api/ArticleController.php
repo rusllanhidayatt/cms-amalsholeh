@@ -138,8 +138,7 @@ class ArticleController extends Controller
             'email'   => 'required|email|max:255',
             'content' => 'required|string',
         ]);
-
-        $artilce = Article::where('slug', $slug)->first();
+        $article = Article::where('slug', $slug)->first();
 
         if (!$article) {
             return response()->json([
@@ -154,30 +153,28 @@ class ArticleController extends Controller
             $user = User::create([
                 'name'  => $request->name,
                 'email' => $request->email,
-                'password' => bcrypt('default123'), // Password default jika perlu
+                'password' => bcrypt('default123'),
+                'role'     => 'viewer',
             ]);
         }
 
-        $comment = new Comment();
-        $comment->article_id = $article->id;
-        $comment->parent_id  = $user->id;
-        $comment->name       = $request->name;
-        $comment->email      = $request->email;
-        $comment->content    = $request->content;
-        $comment->save();
+        $createComment = Comment::create([
+            "article_id"    => $article->id,
+            "parent_id"     => $user->id,
+            "name"          => $user->name,
+            "email"         => $user->email,
+            "content"       => $request->content,
+        ]);
 
-        return response()->json([
-            'message' => 'Comment Added Successfully.',
-            'data' => [
-                'id'         => $comment->id,
-                'parent_id'  => $comment->parent_id,
-                'name'       => $comment->name,
-                'email'      => $comment->email,
-                'content'    => $comment->content,
-                'created_at' => $comment->created_at,
-                'updated_at' => $comment->updated_at,
-            ]
-        ], 201);
+        if (!$createComment) {
+            return response()->json([
+                'message' => 'Comment Failed!'
+            ], 201);
+        } else {
+            return response()->json([
+                'message' => 'Comment Added Successfully.'
+            ], 200);
+        }
     }
 
     public function showCategories() 

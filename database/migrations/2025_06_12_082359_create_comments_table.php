@@ -15,14 +15,17 @@ return new class extends Migration
         Schema::create('comments', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('article_id');
+            $table->unsignedBigInteger('parent_id');
+            $table->text('content');
+            $table->string('name');
+            $table->string('email');
+            $table->timestamps();
             $table->foreign('article_id')
                   ->references('id')->on('articles')
                   ->onDelete('cascade');
-            $table->foreignId('parent_id')->nullable()->constrained('comments')->cascadeOnDelete();
-            $table->text('content');
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->timestamps();
+            $table->foreign('parent_id')
+                  ->references('id')->on('users')
+                  ->onDelete('cascade');
         });
     }
 

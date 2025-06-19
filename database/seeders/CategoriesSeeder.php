@@ -10,9 +10,11 @@ class CategoriesSeeder extends Seeder
     public function run(): void
     {
         Category::updateOrCreate(
-            ['slug' => 'news'],
+            ['slug' => 'test-categories'],
             [
-                'title'         => 'News',
+                'title'         => 'Test Categories',
+                'description'   => 'Test Description In Categories',
+                'icon'          => 'AMSOL-1.png'
             ]
         );
     }

@@ -19,5 +19,25 @@ class AdminUserSeeder extends Seeder
                 'email_verified_at' => now(),
             ]
         );
+
+        User::updateOrCreate(
+            ['email' => 'user@gmail.com'], // avoid duplicates
+            [
+                'name' => 'User',
+                'role' => 'user',
+                'password' => Hash::make('user123'), // secure password
+                'email_verified_at' => now(),
+            ]
+        );
+
+        User::updateOrCreate(
+            ['email' => 'viewer@gmail.com'], // avoid duplicates
+            [
+                'name' => 'Viewer',
+                'role' => 'viewer',
+                'password' => Hash::make('default123'), // secure password
+                'email_verified_at' => now(),
+            ]
+        );
     }
 }
